@@ -33,7 +33,8 @@ void Game::BeginFrame() {
     /* DO NOTHING */
 }
 
-void Game::Update(TimeUtils::FPSeconds /*deltaSeconds*/) {
+void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
+    g_theRenderer->UpdateGameTime(deltaSeconds);
     HandlePlayerInput(_ui_camera);
 }
 
