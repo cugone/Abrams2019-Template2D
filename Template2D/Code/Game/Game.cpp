@@ -35,7 +35,14 @@ void Game::BeginFrame() {
 
 void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     g_theRenderer->UpdateGameTime(deltaSeconds);
-    HandlePlayerInput(_ui_camera);
+
+    Camera2D base_camera = _camera2D;
+    HandlePlayerInput(base_camera);
+    static float rotationPerSecond = 45.0f;
+    orientationDegrees += rotationPerSecond * deltaSeconds.count();
+    orientationDegrees = MathUtils::Wrap(orientationDegrees, 0.0f, 360.0f);
+
+    _camera2D.Update(deltaSeconds);
 }
 
 void Game::Render() const {
@@ -47,8 +54,17 @@ void Game::Render() const {
 
     g_theRenderer->SetViewportAsPercent();
 
+    const auto view_height = 900.0f;
+    const auto view_width = view_height * MathUtils::M_16_BY_9_RATIO;
+    const auto view_half_extents = Vector2{view_width, view_height} * 0.5f;
+    const auto leftBottom = Vector2{-view_half_extents.x, view_half_extents.y};
+    const auto rightTop = Vector2{view_half_extents.x, -view_half_extents.y};
+    _camera2D.SetupView(leftBottom, rightTop);
+    g_theRenderer->SetCamera(_camera2D);
+
     g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
-    g_theRenderer->DrawQuad2D(Vector2::ZERO, Vector2::ONE * 1.0f, Rgba::Red);
+    g_theRenderer->SetModelMatrix(Matrix4::Create2DRotationDegreesMatrix(orientationDegrees));
+    g_theRenderer->DrawQuad2D(Vector2::ZERO, Vector2::ONE * 25.0f, Rgba::Red);
 
 }
 

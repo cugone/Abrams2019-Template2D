@@ -39,12 +39,13 @@ private:
     void RegisterCommands();
     void UnRegisterCommands();
 
-    mutable Camera2D _ui_camera{};
+    mutable Camera2D _camera2D{};
 
     float _cam_speed = 1.0f;
     float _max_shake_angle = 0.0f;
     float _max_shake_x = 0.0f;
     float _max_shake_y = 0.0f;
+    float orientationDegrees = 0.0f;
     bool _debug_render = false;
     Console::CommandList _consoleCommands;
 
