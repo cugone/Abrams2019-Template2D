@@ -1,14 +1,7 @@
 #pragma once
 
-#include "Engine/Core/Console.hpp"
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Renderer/Camera2D.hpp"
-
-#include "Game/GameCommon.hpp"
-
-#include <memory>
-
-class KerningFont;
 
 class Game {
 public:
@@ -17,7 +10,7 @@ public:
     Game(Game&& other) = default;
     Game& operator=(const Game& other) = default;
     Game& operator=(Game&& other) = default;
-    ~Game() noexcept;
+    ~Game() = default;
 
     void Initialize();
     void BeginFrame();
@@ -28,26 +21,17 @@ public:
 protected:
 private:
 
-    void HandleDebugInput(Camera2D& base_camera);
-    void HandleDebugKeyboardInput(Camera2D& base_camera);
-    void HandleDebugMouseInput(Camera2D& base_camera);
+    void HandleDebugInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
+    void HandleDebugKeyboardInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
+    void HandleDebugMouseInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
 
-    void HandlePlayerInput(Camera2D& base_camera);
-    void HandleKeyboardInput(Camera2D& base_camera);
-    void HandleMouseInput(Camera2D& base_camera);
-
-    void RegisterCommands();
-    void UnRegisterCommands();
+    void HandlePlayerInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
+    void HandleKeyboardInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
+    void HandleControllerInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
+    void HandleMouseInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
 
     mutable Camera2D _camera2D{};
 
-    float _cam_speed = 1.0f;
-    float _max_shake_angle = 0.0f;
-    float _max_shake_x = 0.0f;
-    float _max_shake_y = 0.0f;
-    float orientationDegrees = 0.0f;
     bool _debug_render = false;
-    Console::CommandList _consoleCommands;
-
 };
 

@@ -3,30 +3,9 @@
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
-Game::~Game() noexcept {
-    UnRegisterCommands();
-}
-
 void Game::Initialize() {
-    _consoleCommands = Console::CommandList(g_theConsole);
-    RegisterCommands();
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
-}
-
-void Game::RegisterCommands() {
-    {
-        Console::Command echo{};
-        echo.command_name = "echo";
-        echo.help_text_short = "Echoes the command arguments";
-        echo.help_text_long = "echo [args]";
-        _consoleCommands.AddCommand(echo);
-    }
-    g_theConsole->PushCommandList(_consoleCommands);
-}
-
-void Game::UnRegisterCommands() {
-    g_theConsole->PopCommandList(_consoleCommands);
 }
 
 void Game::BeginFrame() {
@@ -37,10 +16,7 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     g_theRenderer->UpdateGameTime(deltaSeconds);
 
     Camera2D base_camera = _camera2D;
-    HandlePlayerInput(base_camera);
-    static float rotationPerSecond = 45.0f;
-    orientationDegrees += rotationPerSecond * deltaSeconds.count();
-    orientationDegrees = MathUtils::Wrap(orientationDegrees, 0.0f, 360.0f);
+    HandlePlayerInput(base_camera, deltaSeconds);
 
     _camera2D.Update(deltaSeconds);
 }
@@ -54,7 +30,7 @@ void Game::Render() const {
 
     g_theRenderer->SetViewportAsPercent();
 
-    const auto view_height = 900.0f;
+    const auto view_height = static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().y);
     const auto view_width = view_height * MathUtils::M_16_BY_9_RATIO;
     const auto view_half_extents = Vector2{view_width, view_height} * 0.5f;
     const auto leftBottom = Vector2{-view_half_extents.x, view_half_extents.y};
@@ -62,37 +38,39 @@ void Game::Render() const {
     _camera2D.SetupView(leftBottom, rightTop);
     g_theRenderer->SetCamera(_camera2D);
 
-    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
-    g_theRenderer->SetModelMatrix(Matrix4::Create2DRotationDegreesMatrix(orientationDegrees));
-    g_theRenderer->DrawQuad2D(Vector2::ZERO, Vector2::ONE * 25.0f, Rgba::Red);
-
 }
 
 void Game::EndFrame() {
     /* DO NOTHING */
 }
 
-void Game::HandlePlayerInput(Camera2D& base_camera) {
-    HandleKeyboardInput(base_camera);
-    HandleMouseInput(base_camera);
+void Game::HandlePlayerInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds) {
+    HandleKeyboardInput(base_camera, deltaSeconds);
+    HandleControllerInput(base_camera, deltaSeconds);
+    HandleMouseInput(base_camera, deltaSeconds);
 }
 
-void Game::HandleKeyboardInput(Camera2D& /*base_camera*/) {
+void Game::HandleKeyboardInput(Camera2D& /*base_camera*/, TimeUtils::FPSeconds /*deltaSeconds*/) {
     if(g_theInputSystem->WasKeyJustPressed(KeyCode::Esc)) {
         g_theApp->SetIsQuitting(true);
+        return;
     }
 }
 
-void Game::HandleMouseInput(Camera2D& /*base_camera*/) {
-    /* DO NOTHING */
+void Game::HandleControllerInput(Camera2D& /*base_camera*/, TimeUtils::FPSeconds /*deltaSeconds*/) {
+
 }
 
-void Game::HandleDebugInput(Camera2D& base_camera) {
-    HandleDebugKeyboardInput(base_camera);
-    HandleDebugMouseInput(base_camera);
+void Game::HandleMouseInput(Camera2D& /*base_camera*/, TimeUtils::FPSeconds /*deltaSeconds*/) {
+
 }
 
-void Game::HandleDebugKeyboardInput(Camera2D& /*base_camera*/) {
+void Game::HandleDebugInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds) {
+    HandleDebugKeyboardInput(base_camera, deltaSeconds);
+    HandleDebugMouseInput(base_camera, deltaSeconds);
+}
+
+void Game::HandleDebugKeyboardInput(Camera2D& /*base_camera*/, TimeUtils::FPSeconds /*deltaSeconds*/) {
     if(g_theUISystem->GetIO().WantCaptureKeyboard) {
         return;
     }
@@ -101,7 +79,7 @@ void Game::HandleDebugKeyboardInput(Camera2D& /*base_camera*/) {
     }
 }
 
-void Game::HandleDebugMouseInput(Camera2D& /*base_camera*/) {
+void Game::HandleDebugMouseInput(Camera2D& /*base_camera*/, TimeUtils::FPSeconds /*deltaSeconds*/) {
     if(g_theUISystem->GetIO().WantCaptureMouse) {
         return;
     }
