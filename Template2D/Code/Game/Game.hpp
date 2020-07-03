@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Core/TimeUtils.hpp"
+#include "Engine/Core/OrthographicCameraController.hpp"
+
 #include "Engine/Renderer/Camera2D.hpp"
 
 class Game {
@@ -21,17 +23,17 @@ public:
 protected:
 private:
 
-    void HandleDebugInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
-    void HandleDebugKeyboardInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
-    void HandleDebugMouseInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
+    void HandleDebugInput(TimeUtils::FPSeconds deltaSeconds);
+    void HandleDebugKeyboardInput(TimeUtils::FPSeconds deltaSeconds);
+    void HandleDebugMouseInput(TimeUtils::FPSeconds deltaSeconds);
 
-    void HandlePlayerInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
-    void HandleKeyboardInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
-    void HandleControllerInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
-    void HandleMouseInput(Camera2D& base_camera, TimeUtils::FPSeconds deltaSeconds);
+    void HandlePlayerInput(TimeUtils::FPSeconds deltaSeconds);
+    void HandleKeyboardInput(TimeUtils::FPSeconds deltaSeconds);
+    void HandleControllerInput(TimeUtils::FPSeconds deltaSeconds);
+    void HandleMouseInput(TimeUtils::FPSeconds deltaSeconds);
 
-    mutable Camera2D _camera2D{};
-
+    mutable Camera2D _ui_camera2D{};
+    OrthographicCameraController _cameraController{};
     bool _debug_render = false;
 };
 
