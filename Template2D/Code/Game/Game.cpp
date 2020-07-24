@@ -35,7 +35,7 @@ void Game::Render() const {
     g_theRenderer->SetViewportAsPercent();
 
     // HUD View
-    const auto view_height = static_cast<float>(g_theRenderer->GetOutput()->GetDimensions().y);
+    const auto view_height = currentGraphicsOptions.WindowHeight;
     const auto view_width = view_height * MathUtils::M_16_BY_9_RATIO;
     const auto view_half_extents = Vector2{view_width, view_height} * 0.5f;
     const auto leftBottom = Vector2{-view_half_extents.x, view_half_extents.y};
