@@ -1,5 +1,9 @@
 #include "Game/Game.hpp"
 
+#include "Engine/Core/KerningFont.hpp"
+
+#include "Engine/Renderer/Material.hpp"
+
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
@@ -8,7 +12,7 @@ void Game::Initialize() {
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
 
     _cameraController = OrthographicCameraController(g_theRenderer, g_theInputSystem);
-
+    _cameraController.SetPosition(Vector2::ZERO);
 }
 
 void Game::BeginFrame() {
@@ -18,7 +22,6 @@ void Game::BeginFrame() {
 void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     g_theRenderer->UpdateGameTime(deltaSeconds);
 
-    Camera2D base_camera = _ui_camera2D;
     HandlePlayerInput(deltaSeconds);
 
     _ui_camera2D.Update(deltaSeconds);
@@ -26,22 +29,24 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void Game::Render() const {
+    g_theRenderer->BeginRenderToBackbuffer();
 
-    g_theRenderer->ResetModelViewProjection();
-    g_theRenderer->SetRenderTarget();
-    g_theRenderer->ClearColor(Rgba::Black);
-    g_theRenderer->ClearDepthStencilBuffer();
 
-    g_theRenderer->SetViewportAsPercent();
+    //World View
+    g_theRenderer->SetMaterial(g_theRenderer->GetMaterial("__2D"));
+    const auto S = Matrix4::CreateScaleMatrix(Vector2::ONE * 100.0f);
+    const auto R = Matrix4::I;
+    const auto T = Matrix4::I;
+    const auto M = Matrix4::MakeSRT(S, R, T);
+    g_theRenderer->DrawQuad2D(M);
 
     // HUD View
-    const auto view_height = currentGraphicsOptions.WindowHeight;
-    const auto view_width = view_height * MathUtils::M_16_BY_9_RATIO;
-    const auto view_half_extents = Vector2{view_width, view_height} * 0.5f;
-    const auto leftBottom = Vector2{-view_half_extents.x, view_half_extents.y};
-    const auto rightTop = Vector2{view_half_extents.x, -view_half_extents.y};
-    _ui_camera2D.SetupView(leftBottom, rightTop);
-    g_theRenderer->SetCamera(_ui_camera2D);
+    const float ui_view_height = currentGraphicsOptions.WindowHeight;
+    const float ui_view_width = ui_view_height * _ui_camera2D.GetAspectRatio();
+    const auto ui_view_extents = Vector2{ui_view_width, ui_view_height};
+    const auto ui_view_half_extents = ui_view_extents * 0.5f;
+    const auto ui_cam_pos = ui_view_half_extents;
+    g_theRenderer->BeginHUDRender(_ui_camera2D, ui_cam_pos, ui_view_height);
 
 }
 
@@ -76,7 +81,7 @@ void Game::HandleDebugInput(TimeUtils::FPSeconds deltaSeconds) {
 }
 
 void Game::HandleDebugKeyboardInput(TimeUtils::FPSeconds /*deltaSeconds*/) {
-    if(g_theUISystem->GetIO().WantCaptureKeyboard) {
+    if(g_theUISystem->WantsInputKeyboardCapture()) {
         return;
     }
     if(g_theInputSystem->WasKeyJustPressed(KeyCode::F4)) {
@@ -85,7 +90,7 @@ void Game::HandleDebugKeyboardInput(TimeUtils::FPSeconds /*deltaSeconds*/) {
 }
 
 void Game::HandleDebugMouseInput(TimeUtils::FPSeconds /*deltaSeconds*/) {
-    if(g_theUISystem->GetIO().WantCaptureMouse) {
+    if(g_theUISystem->WantsInputMouseCapture()) {
         return;
     }
 }

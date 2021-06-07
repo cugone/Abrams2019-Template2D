@@ -49,8 +49,8 @@ App::App(const std::string& cmdString)
     , _theJobSystem{std::make_unique<JobSystem>(-1, static_cast<std::size_t>(JobType::Max), new std::condition_variable)}
     , _theFileLogger{std::make_unique<FileLogger>(*_theJobSystem.get(), "game")}
     , _theConfig{ std::make_unique<Config>(KeyValueParser{cmdString}) }
-    , _theRenderer{std::make_unique<Renderer>(*_theFileLogger.get(), static_cast<unsigned int>(defaultGraphicsOptions.WindowWidth), static_cast<unsigned int>(defaultGraphicsOptions.WindowHeight)) }
-    , _theUI{std::make_unique<UISystem>(*_theFileLogger.get(), *_theRenderer.get())}
+    , _theRenderer{std::make_unique<Renderer>(*_theJobSystem.get(), *_theFileLogger.get(), *_theConfig.get()) }
+    , _theUI{std::make_unique<UISystem>(*_theFileLogger.get(), *_theRenderer.get(), *_theInputSystem.get())}
     , _theConsole{ std::make_unique<Console>(*_theFileLogger.get(), *_theRenderer.get()) }
     , _theInputSystem{ std::make_unique<InputSystem>(*_theFileLogger.get(), *_theRenderer.get()) }
     , _theAudioSystem{ std::make_unique<AudioSystem>(*_theFileLogger.get()) }
@@ -87,7 +87,7 @@ void App::SetupEngineSystemChainOfResponsibility() {
 }
 
 void App::Initialize() {
-    g_theConfig->AppendFromFile("Engine/Config/options.dat");
+    (void)g_theConfig->AppendFromFile("Engine/Config/options.dat");
     g_theConfig->GetValue("vsync", currentGraphicsOptions.vsync);
     g_theConfig->GetValue("window_width", currentGraphicsOptions.WindowWidth);
     g_theConfig->GetValue("window_height", currentGraphicsOptions.WindowHeight);
