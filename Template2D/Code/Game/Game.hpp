@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Engine/Game/GameBase.hpp"
+
 #include "Engine/Core/TimeUtils.hpp"
 #include "Engine/Core/OrthographicCameraController.hpp"
 
 #include "Engine/Renderer/Camera2D.hpp"
 
-class Game {
+class Game : public GameBase {
 public:
     Game() = default;
     Game(const Game& other) = default;
@@ -14,11 +16,11 @@ public:
     Game& operator=(Game&& other) = default;
     ~Game() = default;
 
-    void Initialize();
-    void BeginFrame();
-    void Update(TimeUtils::FPSeconds deltaSeconds);
-    void Render() const;
-    void EndFrame();
+    void Initialize() noexcept override;
+    void BeginFrame() noexcept override;
+    void Update(TimeUtils::FPSeconds deltaSeconds) noexcept override;
+    void Render() const noexcept override;
+    void EndFrame() noexcept override;
 
 protected:
 private:

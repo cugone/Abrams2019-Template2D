@@ -1,25 +1,34 @@
 #include "Game/Game.hpp"
 
+#include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/KerningFont.hpp"
 
+#include "Engine/Input/InputSystem.hpp"
+
+#include "Engine/UI/UISystem.hpp"
+
+#include "Engine/Renderer/Renderer.hpp"
 #include "Engine/Renderer/Material.hpp"
+
+#include "Engine/Services/ServiceLocator.hpp"
+#include "Engine/Services/IAppService.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/GameConfig.hpp"
 
-void Game::Initialize() {
+void Game::Initialize() noexcept {
     g_theRenderer->RegisterMaterialsFromFolder(std::string{ "Data/Materials" });
     g_theRenderer->RegisterFontsFromFolder(std::string{"Data/Fonts"});
 
-    _cameraController = OrthographicCameraController(g_theRenderer, g_theInputSystem);
+    _cameraController = OrthographicCameraController();
     _cameraController.SetPosition(Vector2::ZERO);
 }
 
-void Game::BeginFrame() {
+void Game::BeginFrame() noexcept {
     /* DO NOTHING */
 }
 
-void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
+void Game::Update(TimeUtils::FPSeconds deltaSeconds) noexcept {
     g_theRenderer->UpdateGameTime(deltaSeconds);
 
     HandlePlayerInput(deltaSeconds);
@@ -28,7 +37,7 @@ void Game::Update(TimeUtils::FPSeconds deltaSeconds) {
     _cameraController.Update(deltaSeconds);
 }
 
-void Game::Render() const {
+void Game::Render() const noexcept {
     g_theRenderer->BeginRenderToBackbuffer();
 
 
@@ -50,7 +59,7 @@ void Game::Render() const {
 
 }
 
-void Game::EndFrame() {
+void Game::EndFrame() noexcept {
     /* DO NOTHING */
 }
 
@@ -62,7 +71,8 @@ void Game::HandlePlayerInput(TimeUtils::FPSeconds deltaSeconds) {
 
 void Game::HandleKeyboardInput(TimeUtils::FPSeconds /*deltaSeconds*/) {
     if(g_theInputSystem->WasKeyJustPressed(KeyCode::Esc)) {
-        g_theApp->SetIsQuitting(true);
+        auto& app = ServiceLocator::get<IAppService>();
+        app.SetIsQuitting(true);
         return;
     }
 }
