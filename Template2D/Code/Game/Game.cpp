@@ -63,6 +63,10 @@ void Game::EndFrame() noexcept {
     /* DO NOTHING */
 }
 
+GameSettings& Game::GetSettings() noexcept {
+    return GameBase::GetSettings();
+}
+
 void Game::HandlePlayerInput(TimeUtils::FPSeconds deltaSeconds) {
     HandleKeyboardInput(deltaSeconds);
     HandleControllerInput(deltaSeconds);
