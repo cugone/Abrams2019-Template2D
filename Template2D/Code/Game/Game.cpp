@@ -63,6 +63,10 @@ void Game::EndFrame() noexcept {
     /* DO NOTHING */
 }
 
+const GameSettings& Game::GetSettings() const noexcept {
+    return GameBase::GetSettings();
+}
+
 GameSettings& Game::GetSettings() noexcept {
     return GameBase::GetSettings();
 }
